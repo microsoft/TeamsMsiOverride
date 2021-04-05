@@ -1,33 +1,20 @@
-# Teams Machine-Wide Installer
-Microsoft Teams supports installation through an MSI installer, referred to as the Teams Machine-Wide Installer. This installer is used by Microsoft Office to install Teams, or may be used by organizations installing Teams through a deployment package.
+# Teams MSI Override
+Microsoft Teams supports installation through an MSI installer, referred to as the Teams Machine-Wide Installer. This installer is used by Microsoft Office to install Teams or may be used by organizations installing Teams through a deployment package.
 
-When installed through this method, the MSI installer places an EXE installer onto the machine in the Program Files folder, and a RUN key named TeamsMachineInstaller is created in the Local Machine hive.
+The Teams Machine-Wide Installer does not normally get updated, and per-user instances of Teams installed into a user's profile will normally not be affected by changes to the Teams-Machine-Wide Installer.
 
-When a user logs into the machine, this RUN key will execute, installing Microsoft Teams into the per-user profile location. From that point the per-user profile instance of Teams should automatically update itself.
+There may be cases where an organization needs to update the Teams Machine-Wide Installer or forcibly update the per-user instances of Teams, perhaps for a critical security release, or if the normal update process is failing, or because a machine is shared, and new users are getting an outdated Teams installation.
 
-The Teams Machine-Wide Installer does not update itself, so the installer present on a given machine will generally remain at the version first installed. 
-Since this is just used to initially install Teams, and then the per-user profile instance of Teams will automatically update itself, this is generally not an issue, except in the case of shared computers where new users are logging into them frequently.
+In the event an organization needs to update the Teams Machine-Wide Installer, they can use a feature named MSI Override to update the MSI installed on a machine and allow per-user instances of Teams to update from the MSI.
 
-Even if the Teams Machine-Wide Installer is updated, it will normally not affect the per-user profile instance of Teams.
+For additional technical details on the Teams Machine-Wide Installer and MSI Override, please see [Details](Details.md)
 
-## Teams MSI Override
-There may be cases where an organization needs to update the Teams Machine-Wide Installer and forcibly update the per-user profile instances, perhaps for a critical security release, or if the normal update process is failing for some reason.
-For these cases the Teams MSI Override can be used.
-
-For Teams MSI Override to work, two things must occur:
-1) The installed Teams Machine-Wide Installer (MSI) must be updated to the target version
-2) A DWORD registry key must be created:
-
-   ```HKLM\Software\Policies\Microsoft\Office\16.0\Teams\AllowMsiOverride = 1```
-
-The next time the user signs into Windows and the TeamsMachineInstaller RUN key is executed, with AllowMsiOverride set to 1, it will check if a newer version of Teams is available from the Teams Machine-Wide Installer and install it into the per-user profile instance.
-
-## Getting Started
-To simplify these steps, you can use the PublishLatestVersion.ps1 and CheckMsiOverride.ps1 scripts to handle these tasks.
+To implement MSI Override, you can use the PublishLatestVersion.ps1 and CheckMsiOverride.ps1 scripts.
 
 [![Version](https://img.shields.io/github/v/release/microsoft/TeamsMsiOverride?label=latest%20version)](https://github.com/microsoft/TeamsMsiOverride/releases/latest/download/TeamsMsiOverride.zip)
 [![Downloads](https://img.shields.io/github/downloads/microsoft/TeamsMsiOverride/total)](https://github.com/microsoft/TeamsMsiOverride/releases/latest/download/TeamsMsiOverride.zip)
 
+## Getting Started
 PowerShell **5.0** (or greater) must be installed on the host machine. Click [here](https://github.com/powershell/powershell) for details on how to get the latest version for your computer. 
 
 ### PublishLatestVersion
