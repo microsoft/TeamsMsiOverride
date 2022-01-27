@@ -42,10 +42,10 @@ Going forward the MSI Override Administrators can run the PublishLatestVersion.p
 ## CheckMsiOverride
 The CheckMsiOverride script is intended to run on user machines, and will set the required registry key, and update the Teams Machine-Wide Installer to the most recent version.
 
-This script supports three methods of checking and retriving an updated MSI: Share, CDN, and Package. 
+This script supports three methods of checking and retrieving an updated MSI: Share, CDN, and Package. 
 - The share method uses a share location populated by the PublishLatestVersion script to check for a newer version and to copy the MSI from. 
-- The CDN method has each client directly query if a new version is available and then downloads the relevent MSI directly from the Microsoft CDN server. Note that this method has each individual user downloading the files, and therefore can cause increased bandwidth usage if multiple users are executing the script at the same time.
-- The package method requires the relevent MSI to be placed in the same folder as the script. This method is intended for deployment via package managers to allow all the relevent files to be placed in one location.
+- The CDN method has each client directly query if a new version is available and then downloads the relevant MSI directly from the Microsoft CDN server. Note that this method has each individual user downloading the files, and therefore can cause increased bandwidth usage if multiple users are executing the script at the same time.
+- The package method requires the relevant MSI to be placed in the same folder as the script. This method is intended for deployment via package managers to allow all the relevant files to be placed in one location.
 
 It must be run with Administrative privileges. It may be ideal to have it run from the SYSTEM account.
 
@@ -66,7 +66,7 @@ CheckMsiOverride.ps1 -Type Package -OverrideVersion <version number> [-MsiFileNa
 - **-PreviewRing** specifies that the target version should be from the preview ring.  It is only valid with the -Type CDN parameter.
 - **-MsiFileName \<MSI file name\>** specifies the name of the MSI file that was previously used to install Teams.  This is only required in rare cases where the file name was changed prior to installation, and the script is unable to determine the correct file name based on what is stored in the registry. It is optional for all -Type parameter values.
 - **-FixRunKey** specifies that the script should correct missing or incorrect Run key values for the Teams Machine-Wide Installer. It is optional for all -Type parameter values.
-- **-Uninstall32Bit** specifies that the script should uninstall a 32-bit installation of Teams so the 64-bit version can be installed on 64-bit Windows. It is prefered to run 64-bit Teams on 64-bit Windows. It is optional for all -Type parameter values.
+- **-Uninstall32Bit** specifies that the script should uninstall a 32-bit installation of Teams so the 64-bit version can be installed on 64-bit Windows. It is preferred to run 64-bit Teams on 64-bit Windows. It is optional for all -Type parameter values.
 - **-AllowInstallOverTopExisting** specifies that Teams can be installed instead of upgraded in a specific case.  Please see below for further details. It is optional for all -Type parameter values.
 - **-OverwitePolicyKey** specifies that the script should overwrite the AllowMsiOverride key.  Please see bleow for further details. It is optional for all -Type parameter values.
 
