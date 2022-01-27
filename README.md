@@ -14,11 +14,19 @@ To implement MSI Override, you can use the PublishLatestVersion.ps1 and CheckMsi
 [![Version](https://img.shields.io/github/v/release/microsoft/TeamsMsiOverride?label=latest%20version)](https://github.com/microsoft/TeamsMsiOverride/releases/latest/download/TeamsMsiOverride.zip)
 [![Downloads](https://img.shields.io/github/downloads/microsoft/TeamsMsiOverride/total)](https://github.com/microsoft/TeamsMsiOverride/releases/latest/download/TeamsMsiOverride.zip)
 
-## Getting Started
+# Getting Started
 PowerShell **5.0** (or greater) must be installed on the host machine. Click [here](https://github.com/powershell/powershell) for details on how to get the latest version for your computer. 
 
-### PublishLatestVersion
-The PublishLatestVersion.ps1 script will retrieve the most recent Teams MSI installers and store them onto a file share.
+## PublishLatestVersion
+The PublishLatestVersion.ps1 script will retrieve the most recent Teams MSI installers and store them onto a file share. This share can then be used by the CheckMsiOverride script.
+
+### Command
+```
+PublishLatestVersion.ps1 -BaseShare <share location> [-PreviewRing]
+```
+-PreviewRing will check for and download the version currently available in the preview ring.  If you are currently running a preview version, this can be used to continue to pull the preview version while using this script package. 
+
+### Usage
 
 To use the script, follow these steps:
 1) [Download](https://github.com/microsoft/TeamsMsiOverride/releases/latest/download/TeamsMsiOverride.zip) the latest version of the script package.
@@ -31,23 +39,36 @@ To use the script, follow these steps:
 At this point the file share should be populated with a new folder containing the latest Teams MSI installers, as well as a Version.txt file which indicates which version is the latest.
 Going forward the MSI Override Administrators can run the PublishLatestVersion.ps1 script to retrieve the latest Teams MSI installers at any time.
 
-### CheckMsiOverride
-The CheckMsiOverride script is intended to run on user machines, and will set the required registry key, and update the Teams Machine-Wide Installer to the most recent version from the file share.
+## CheckMsiOverride
+The CheckMsiOverride script is intended to run on user machines, and will set the required registry key, and update the Teams Machine-Wide Installer to the most recent version.
+
+This script supports three methods of checking and retriving an updated MSI: Share, CDN, and Package. 
+- The share method uses a share location populated by the PublishLatestVersion script to check for a newer version and to copy the MSI from. 
+- The CDN method has each client directly query if a new version is available and then downloads the relevent MSI directly from the Microsoft CDN server. Note that this method has each individual user downloading the files, and therefore can cause increased bandwidth usage if multiple users are executing the script at the same time.
+- The package method requires the relevent MSI to be placed in the same folder as the script. This method is intended for deployment via package managers to allow all the relevent files to be placed in one location.
 
 It must be run with Administrative privileges. It may be ideal to have it run from the SYSTEM account.
 
-The CheckMsiOverride.ps1 script can be deployed in various ways; we will provide an example here using Scheduled Tasks. 
-
 The script is signed, so the user executing the script on each machine will require an execution policy of at least RemoteSigned.
 
-#### Scheduled Task
-To deploy this script as a Scheduled Task you can use the following steps:
-1) [Download](https://github.com/microsoft/TeamsMsiOverride/releases/latest/download/TeamsMsiOverride.zip) the latest version of the script package.
-2) Copy the CheckMsiOverride.ps1 script to the file share you created (\\\\server\TeamsUpdateShare\CheckMsiOverrride.ps1), or any other equally accessible location per your organizations policies.
-3) Create a scheduled task which executes the script as follows:
+### Command
 
-   ```powershell.exe -File \\share\TeamsUpdateShare\CheckMsiOverride.ps1 -BaseShare \\share\TeamsUpdateShare```
-4) Specify a schedule that is appropriate for your organization. If no update is required, the script will make no changes, so there are no issues running it often (such as daily).
+```
+CheckMsiOverride.ps1 -Type Share -BaseShare <share location> [-OverrideVersion <version number>] [-MsiFileName <MSI file name>] [-AllowInstallOverTopExisting] [-OverwritePolicyKey] [-FixRunKey] [-Uninstall32Bit]
+
+CheckMsiOverride.ps1 -Type CDN [-PreviewRing] [-OverrideVersion <version number>] [-MsiFileName <MSI file name>] [-AllowInstallOverTopExisting] [-OverwritePolicyKey] [-FixRunKey] [-Uninstall32Bit]
+
+CheckMsiOverride.ps1 -Type Package -OverrideVersion <version number> [-MsiFileName <MSI file name>] [-AllowInstallOverTopExisting] [-OverwritePolicyKey] [-FixRunKey] [-Uninstall32Bit]
+```
+- **-Type \<[ Share | CDN | Package ]\>** specifies which type of retrieval is used. Share is the default value if this parameter is not specified, for backwards compatibility.
+- **-BaseShare** specifies the share location which has been populated by PublishLatestVersion.ps1. This is only valid with the -Type Share parameter.
+- **-OverrideVersion \<version number\>** specifies target version number for the client to have.  It is required with the -Type Package parameter, and is optional in the other cases.
+- **-PreviewRing** specifies that the target version should be from the preview ring.  It is only valid with the -Type CDN parameter.
+- **-MsiFileName \<MSI file name\>** specifies the name of the MSI file that was previously used to install Teams.  This is only required in rare cases where the file name was changed prior to installation, and the script is unable to determine the correct file name based on what is stored in the registry. It is optional for all -Type parameter values.
+- **-FixRunKey** specifies that the script should correct missing or incorrect Run key values for the Teams Machine-Wide Installer. It is optional for all -Type parameter values.
+- **-Uninstall32Bit** specifies that the script should uninstall a 32-bit installation of Teams so the 64-bit version can be installed on 64-bit Windows. It is prefered to run 64-bit Teams on 64-bit Windows. It is optional for all -Type parameter values.
+- **-AllowInstallOverTopExisting** specifies that Teams can be installed instead of upgraded in a specific case.  Please see below for further details. It is optional for all -Type parameter values.
+- **-OverwitePolicyKey** specifies that the script should overwrite the AllowMsiOverride key.  Please see bleow for further details. It is optional for all -Type parameter values.
 
 #### AllowInstallOvertopExisting
 When installing the Teams Machine-Wide Installer originally, it could have been installed in 3 main ways, relative to the current user:
@@ -72,7 +93,29 @@ If you want to forcibly reset the value back to 1 for all users, you can pass th
 
    ```powershell.exe -File \\share\TeamsUpdateShare\CheckMsiOverride.ps1 -BaseShare \\share\TeamsUpdateShare -OverwritePolicyKey```
 
-#### Diagnostics
+### Share Type With Scheduled Task
+The CheckMsiOverride.ps1 script can be deployed in various ways; we will provide an example here using Scheduled Tasks. 
+
+To deploy this script as a Scheduled Task you can use the following steps:
+1) [Download](https://github.com/microsoft/TeamsMsiOverride/releases/latest/download/TeamsMsiOverride.zip) the latest version of the script package.
+2) Copy the CheckMsiOverride.ps1 script to the file share you created (\\\\server\TeamsUpdateShare\CheckMsiOverrride.ps1), or any other equally accessible location per your organizations policies.
+3) Create a scheduled task which executes the script as follows:
+
+   ```powershell.exe -File \\share\TeamsUpdateShare\CheckMsiOverride.ps1 -Type Share -BaseShare \\share\TeamsUpdateShare```
+4) Specify a schedule that is appropriate for your organization. If no update is required, the script will make no changes, so there are no issues running it often (such as daily).
+
+### Package Type
+If you are building a package with this script you can use the following steps:
+1) [Download](https://github.com/microsoft/TeamsMsiOverride/releases/latest/download/TeamsMsiOverride.zip) the latest version of the script package.
+2) Copy the CheckMsiOverride.ps1 script to the package directory.
+3) Download the latest 32-bit and 64-bit Teams MSI, either from the [Teams website](https://docs.microsoft.com/en-us/MicrosoftTeams/msi-deployment) or use the PublishLatestVersion script to retrieve them for you.
+4) Place the Teams_windows.msi and Teams_windows_x64.msi into the folder with the CheckMsiOverride.ps1 script.
+5) Determine the version number for this MSI, either by installing locally or extracting the files and looking at the properties of the Teams.exe file contained inside. If you used the PublishLatestVersion script, the version number is the folder name they are placed into.
+6) Have the package execute the script similar to as follows, using the proper location for the script for your package deployment software:
+
+   ```powershell.exe -File CheckMsiOverride.ps1 -Type Package -OverrideVersion <version number of the MSI installation>```
+   
+### Diagnostics
 CheckMsiOverride.ps1 will save a trace file to %TEMP%\TeamsMsiOverrideTrace.txt
 
 It will also write to the Application event log with the source "TeamsMsiOverride" for any failures, or if an update completed successfully.
