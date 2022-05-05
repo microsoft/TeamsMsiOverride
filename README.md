@@ -68,7 +68,7 @@ CheckMsiOverride.ps1 -Type Package -OverrideVersion <version number> [-MsiFileNa
 - **-FixRunKey** specifies that the script should correct missing or incorrect Run key values for the Teams Machine-Wide Installer. It is optional for all -Type parameter values.
 - **-Uninstall32Bit** specifies that the script should uninstall a 32-bit installation of Teams so the 64-bit version can be installed on 64-bit Windows. It is preferred to run 64-bit Teams on 64-bit Windows. It is optional for all -Type parameter values.
 - **-AllowInstallOverTopExisting** specifies that Teams can be installed instead of upgraded in a specific case.  Please see below for further details. It is optional for all -Type parameter values.
-- **-OverwitePolicyKey** specifies that the script should overwrite the AllowMsiOverride key.  Please see bleow for further details. It is optional for all -Type parameter values.
+- **-OverwritePolicyKey** specifies that the script should overwrite the AllowMsiOverride key.  Please see bleow for further details. It is optional for all -Type parameter values.
 
 #### AllowInstallOvertopExisting
 When installing the Teams Machine-Wide Installer originally, it could have been installed in 3 main ways, relative to the current user:
