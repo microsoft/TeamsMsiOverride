@@ -1,4 +1,8 @@
 # Teams MSI Override
+> [!IMPORTANT]
+> Microsoft Teams is in the process of transitioning to the New Teams desktop client.  The New Teams desktop client uses a completely different installation process which these scripts will not support.
+> These scripts will therefore not be needed once the transition to the New Teams desktop client is complete, and this repository will be removed at that time.
+
 Microsoft Teams supports installation through an MSI installer, referred to as the Teams Machine-Wide Installer. This installer is used by Microsoft Office to install Teams or may be used by organizations installing Teams through a deployment package.
 
 The Teams Machine-Wide Installer does not normally get updated, and per-user instances of Teams installed into a user's profile will normally not be affected by changes to the Teams-Machine-Wide Installer.
@@ -13,6 +17,8 @@ To implement MSI Override, you can use the PublishLatestVersion.ps1 and CheckMsi
 
 [![Version](https://img.shields.io/github/v/release/microsoft/TeamsMsiOverride?label=latest%20version)](https://github.com/microsoft/TeamsMsiOverride/releases/latest/download/TeamsMsiOverride.zip)
 [![Downloads](https://img.shields.io/github/downloads/microsoft/TeamsMsiOverride/total)](https://github.com/microsoft/TeamsMsiOverride/releases/latest/download/TeamsMsiOverride.zip)
+
+[![Pre-Release Version](https://img.shields.io/github/v/release/microsoft/TeamsMsiOverride?include_prereleases&label=latest%20pre-release%20version)](https://github.com/microsoft/TeamsMsiOverride/releases/tag/v1.0.2311.3001)
 
 # Getting Started
 PowerShell **5.0** (or greater) must be installed on the host machine. Click [here](https://github.com/powershell/powershell) for details on how to get the latest version for your computer. 
